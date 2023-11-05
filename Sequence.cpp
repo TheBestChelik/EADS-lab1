@@ -125,6 +125,102 @@ void Sequence<Key, Info>::clear()
     }
 }
 
+// begin method
+template <typename Key, typename Info>
+typename Sequence<Key, Info>::Iterator Sequence<Key, Info>::begin() const
+{
+    return Iterator(head);
+}
+
+// end method
+template <typename Key, typename Info>
+typename Sequence<Key, Info>::Iterator Sequence<Key, Info>::end() const
+{
+    return Iterator(tail);
+}
+
+// Iterator assignment operator
+template <typename Key, typename Info>
+typename Sequence<Key, Info>::Iterator &Sequence<Key, Info>::Iterator::operator=(const Iterator &src)
+{
+    if (this != &src)
+    {
+        current = src.current;
+    }
+    return *this;
+}
+
+// Iterator copyconstructor
+template <typename Key, typename Info>
+Sequence<Key, Info>::Iterator::Iterator(const Iterator &src)
+{
+    this->current = src.current;
+}
+
+// Iterator equality operator
+template <typename Key, typename Info>
+bool Sequence<Key, Info>::Iterator::operator==(const Iterator &src) const
+{
+    return current == src.current;
+}
+
+// Iterator inequality operator
+template <typename Key, typename Info>
+bool Sequence<Key, Info>::Iterator::operator!=(const Iterator &src) const
+{
+    return current != src.current;
+}
+
+// Iterator prefix increment operator
+template <typename Key, typename Info>
+typename Sequence<Key, Info>::Iterator &Sequence<Key, Info>::Iterator::operator++()
+{
+    if (current->next != nullptr)
+    {
+        current = current->next;
+    }
+    return *this;
+}
+
+// Iterator postfix increment operator
+template <typename Key, typename Info>
+typename Sequence<Key, Info>::Iterator Sequence<Key, Info>::Iterator::operator++(int)
+{
+    Iterator temp = *this;
+    if (current->next != nullptr)
+    {
+        current = current->next;
+    }
+    return temp;
+}
+
+// Iterator addition operator for advancing the iterator by a specified interval
+template <typename Key, typename Info>
+typename Sequence<Key, Info>::Iterator Sequence<Key, Info>::Iterator::operator+(int interval)
+{
+    Iterator temp = *this;
+    while (interval > 0 && temp.current->next != nullptr)
+    {
+        temp++;
+        interval--;
+    }
+    return temp;
+}
+
+// Iterator key accessor
+template <typename Key, typename Info>
+Key &Sequence<Key, Info>::Iterator::key() const
+{
+    return current->key;
+}
+
+// Iterator info accessor
+template <typename Key, typename Info>
+Info &Sequence<Key, Info>::Iterator::info() const
+{
+    return current->info;
+}
+
 // Overloaded stream insertion operator
 template <typename Key, typename Info>
 std::ostream &operator<<(std::ostream &os, const Sequence<Key, Info> &sequence)
