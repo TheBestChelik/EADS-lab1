@@ -13,7 +13,7 @@ private:
         Key key;
         Info info;
 
-        Node(const Key &_key, const Info &_info, Node *_next = nullptr)
+        Node(const Key &_key, const Info &_info, Node *_next)
             : key(_key), info(_info), next(_next) {}
 
         friend class Sequence;
@@ -25,6 +25,7 @@ private:
 
     // methods
     Node *getNode(const Key &key, unsigned int occurrence = 1);
+    Node *getNodeBefore(const Key &key, unsigned int occurrence = 1);
 
 public:
     Sequence() : head(nullptr), tail(nullptr), length(0){};
@@ -89,17 +90,6 @@ public:
     void clear();
 
     /**
-     *
-     * Retrieves the info associated to a specified element of a given key and occurrence.
-     *
-     * @param[out] info Reference to where the info will be stored.
-     * @param key The key for which to retrieve the associated info.
-     * @param occurrence Specifies which occurrence of the key to consider. Defaults to 1.
-     * @return true if the element was found and the associated info was retrieved, false otherwise.
-     */
-    bool get_info(Info &info, const Key &key, unsigned int occurrence = 1) const;
-
-    /**
      * Searches for the specified element of a given key and occurrence.
      *
      * @param key The key to search for.
@@ -113,6 +103,32 @@ public:
      */
     unsigned int occurrencesOf(const Key &key) const;
 
+    /**
+     * Searches for the specified element of a given key and occurrence.
+     *
+     * @param key The key to search for.
+     * @param occurrence Specifies which occurrence of the key to consider. Defaults to 1.
+     * @param [out] it is iterator pointing on found element
+     * @return true if the specified element is found, false otherwise.
+     */
+    bool find(Iterator &it, const Key &key, unsigned int occurrence = 1);
+
+    /**
+     * Searches for the specified element before element with given key and occurrence
+     *
+     * @param key The key to search for.
+     * @param occurrence Specifies which occurrence of the key to consider. Defaults to 1.
+     * @param [out] it is iterator pointing on found element
+     * @return true if the specified element is found, false otherwise.
+     */
+    bool findBefore(Iterator &it, const Key &key, unsigned int occurrence = 1);
+
+    /**
+     * Returns first or last element of sequence
+     *
+     * @param [out] it is iterator pointing on found element
+     * @return true if the specified element is found, false otherwise.
+     */
     Iterator begin() const;
     Iterator end() const;
 };
