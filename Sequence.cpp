@@ -43,7 +43,7 @@ void Sequence<Key, Info>::push_front(const Key &key, const Info &info)
 template <typename Key, typename Info>
 void Sequence<Key, Info>::push_back(const Key &key, const Info &info)
 {
-    Node *newNode = new Node(key, info);
+    Node *newNode = new Node(key, info, nullptr);
     if (tail == nullptr)
     {
         head = newNode;
@@ -175,6 +175,10 @@ bool Sequence<Key, Info>::Iterator::operator!=(const Iterator &src) const
 template <typename Key, typename Info>
 typename Sequence<Key, Info>::Iterator &Sequence<Key, Info>::Iterator::operator++()
 {
+    if (current == nullptr)
+    {
+        throw std::runtime_error("Iterator is null");
+    }
     if (current->next != nullptr)
     {
         current = current->next;
@@ -186,6 +190,10 @@ typename Sequence<Key, Info>::Iterator &Sequence<Key, Info>::Iterator::operator+
 template <typename Key, typename Info>
 typename Sequence<Key, Info>::Iterator Sequence<Key, Info>::Iterator::operator++(int)
 {
+    if (current == nullptr)
+    {
+        throw std::runtime_error("Iterator is null");
+    }
     Iterator temp = *this;
     if (current->next != nullptr)
     {
@@ -198,6 +206,10 @@ typename Sequence<Key, Info>::Iterator Sequence<Key, Info>::Iterator::operator++
 template <typename Key, typename Info>
 typename Sequence<Key, Info>::Iterator Sequence<Key, Info>::Iterator::operator+(int interval)
 {
+    if (current == nullptr)
+    {
+        throw std::runtime_error("Iterator is null");
+    }
     Iterator temp = *this;
     while (interval > 0 && temp.current->next != nullptr)
     {
@@ -211,6 +223,10 @@ typename Sequence<Key, Info>::Iterator Sequence<Key, Info>::Iterator::operator+(
 template <typename Key, typename Info>
 Key &Sequence<Key, Info>::Iterator::key() const
 {
+    if (current == nullptr)
+    {
+        throw std::runtime_error("Iterator is null");
+    }
     return current->key;
 }
 
@@ -218,7 +234,203 @@ Key &Sequence<Key, Info>::Iterator::key() const
 template <typename Key, typename Info>
 Info &Sequence<Key, Info>::Iterator::info() const
 {
+    if (current == nullptr)
+    {
+        throw std::runtime_error("Iterator is null");
+    }
     return current->info;
+}
+
+// get Node method
+template <typename Key, typename Info>
+typename Sequence<Key, Info>::Node *Sequence<Key, Info>::getNode(const Key &key, unsigned int occurrence)
+{
+    Node *currentNode = head;
+    unsigned int count = 0;
+
+    while (currentNode != nullptr)
+    {
+        if (currentNode->key == key)
+        {
+            count++;
+            if (count == occurrence)
+            {
+                // Found the node with the specified key and occurrence
+                return currentNode;
+            }
+        }
+        currentNode = currentNode->next;
+    }
+
+    // Node with the specified key and occurrence not found
+    return nullptr;
+}
+
+template <typename Key, typename Info>
+unsigned int Sequence<Key, Info>::occurrencesOf(const Key &key) const
+{
+    Node *currentNode = head;
+    unsigned int count = 0;
+
+    while (currentNode != nullptr)
+    {
+        if (currentNode->key == key)
+        {
+            // Found an occurrence of the specified key
+            count++;
+        }
+        currentNode = currentNode->next;
+    }
+
+    // Return the total number of occurrences of the specified key
+    return count;
+}
+
+// exists method
+template <typename Key, typename Info>
+bool Sequence<Key, Info>::exists(const Key &key, unsigned int occurrence) const
+{
+    return occurrencesOf(key) != 0;
+}
+
+// find method
+template <typename Key, typename Info>
+bool Sequence<Key, Info>::find(Iterator &it, const Key &key, unsigned int occurrence)
+{
+    Node *foundNode = getNode(key, occurrence);
+
+    if (foundNode != nullptr)
+    {
+        // Update the provided Iterator to point to the found element
+        it = Iterator(foundNode);
+        return true; // Element found
+    }
+
+    // Element not found
+    return false;
+}
+
+// find node before given
+template <typename Key, typename Info>
+typename Sequence<Key, Info>::Node *Sequence<Key, Info>::getNodeBefore(const Key &key, unsigned int occurrence)
+{
+    Node *previousNode = nullptr;
+    Node *currentNode = head;
+    unsigned int count = 0;
+
+    while (currentNode != nullptr)
+    {
+        if (currentNode->key == key)
+        {
+            count++;
+            if (count == occurrence)
+            {
+                // Found the node with the specified key and occurrence
+                // Return the node before this node (previousNode)
+                return previousNode;
+            }
+        }
+        previousNode = currentNode;
+        currentNode = currentNode->next;
+    }
+
+    // Node before the specified key and occurrence not found
+    return nullptr;
+}
+
+// find before method
+template <typename Key, typename Info>
+bool Sequence<Key, Info>::findBefore(Iterator &it, const Key &key, unsigned int occurrence)
+{
+    Node *beforeNode = getNodeBefore(key, occurrence);
+
+    if (beforeNode != nullptr)
+    {
+        // Update the provided Iterator to point to the node before the found element
+        it = Iterator(beforeNode);
+        return true; // Element found
+    }
+
+    // Element not found
+    return false;
+}
+
+// insert after method
+template <typename Key, typename Info>
+bool Sequence<Key, Info>::insert_after(const Key &key, const Info &info, const Key &target_key, unsigned int occurrence)
+{
+    Node *targetNode = getNode(target_key, occurrence);
+
+    if (targetNode == nullptr)
+    {
+        return false; // Target element not found
+    }
+
+    Node *newNode = new Node(key, info, targetNode->next);
+    targetNode->next = newNode;
+    if (targetNode == tail)
+    {
+        tail = newNode; // Update tail if targetNode is the last node
+    }
+    length++;
+    return true; // Element inserted successfully
+}
+
+// insert before method
+template <typename Key, typename Info>
+bool Sequence<Key, Info>::insert_before(const Key &key, const Info &info, const Key &target_key, unsigned int occurrence)
+{
+
+    if (!exists(target_key, occurrence))
+    {
+        return false;
+    }
+    Node *beforeNode = getNodeBefore(target_key, occurrence);
+
+    if (beforeNode == nullptr)
+    {
+        // required element is the first element in the sequence
+        push_front(key, info);
+    }
+    else
+    {
+        Node *newNode = new Node(key, info, beforeNode->next);
+        beforeNode->next = newNode;
+        length++;
+    }
+
+    return true; // Element inserted successfully
+}
+
+// remove method
+template <typename Key, typename Info>
+bool Sequence<Key, Info>::remove(const Key &key, unsigned int occurrence)
+{
+
+    if (!exists(key, occurrence))
+    {
+        return false;
+    }
+
+    Node *beforeNode = getNodeBefore(key, occurrence);
+
+    if (beforeNode == nullptr)
+    {
+        // required element is the first element in the sequence
+        pop_front();
+    }
+    else
+    {
+        Node *targetNode = beforeNode->next;
+        beforeNode->next = targetNode->next;
+        if (targetNode == tail)
+        {
+            tail = beforeNode; // Update tail if targetNode is the last node
+        }
+        delete targetNode;
+        length--;
+    }
+    return true; // Element removed successfully
 }
 
 // Overloaded stream insertion operator
