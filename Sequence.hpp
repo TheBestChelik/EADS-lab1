@@ -23,14 +23,23 @@ private:
     Node *tail;
     unsigned int length;
 
+    // methods
+    Node *getNode(const Key &key, unsigned int occurrence = 1);
+
+public:
+    Sequence() : head(nullptr), tail(nullptr), length(0){};
+    ~Sequence();
+    Sequence(const Sequence &src);
+    Sequence &operator=(const Sequence &src);
+
     class Iterator
     {
     private:
         Node *current;
 
     public:
-        Iterator(Node *ptr = nullptr);
-        ~Iterator();
+        Iterator(Node *ptr = nullptr) : current(ptr){};
+        ~Iterator(){};
         Iterator(const Iterator &src);
         Iterator &operator=(const Iterator &src);
 
@@ -44,15 +53,6 @@ private:
         Key &key() const;
         Info &info() const;
     };
-
-    // methods
-    Node *getNode(const Key &key, unsigned int occurrence = 1);
-
-public:
-    Sequence() : head(nullptr), tail(nullptr), length(0){};
-    ~Sequence();
-    Sequence(const Sequence &src);
-    Sequence &operator=(const Sequence &src);
 
     int getLength() const;
     bool isEmpty() const;
@@ -98,9 +98,6 @@ public:
      * @return true if the element was found and the associated info was retrieved, false otherwise.
      */
     bool get_info(Info &info, const Key &key, unsigned int occurrence = 1) const;
-
-    bool front(Info &info, Key &key) const;
-    bool back(Info &info, Key &key) const;
 
     /**
      * Searches for the specified element of a given key and occurrence.
