@@ -12,6 +12,33 @@ Sequence<Key, Info>::~Sequence()
     clear();
 }
 
+// Copy constructor
+template <typename Key, typename Info>
+Sequence<Key, Info>::Sequence(const Sequence<Key, Info> &src)
+{
+    // Use the copy assignment operator to copy elements from src to *this
+    *this = src;
+}
+
+// Copy assignment operator using iterators
+template <typename Key, typename Info>
+Sequence<Key, Info> &Sequence<Key, Info>::operator=(const Sequence<Key, Info> &src)
+{
+    if (this != &src)
+    {
+        // Clear the current sequence
+        clear();
+        auto it = src.begin();
+        // Copy elements from src to this using iterators
+        for (int i = 0; i < src.getLength(); i++)
+        {
+            push_back(it.key(), it.info());
+            it++;
+        }
+    }
+    return *this;
+}
+
 // isEmpty method
 template <typename Key, typename Info>
 bool Sequence<Key, Info>::isEmpty() const

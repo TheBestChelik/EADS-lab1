@@ -1,5 +1,5 @@
 #include <iostream>
-
+#pragma once
 template <typename Key, typename Info>
 class Sequence
 {
