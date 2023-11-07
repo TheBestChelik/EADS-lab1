@@ -1,4 +1,5 @@
 #include "Sequence.hpp"
+#include "split.hpp"
 #include <cassert>
 #include <iostream>
 #include <string>
@@ -50,6 +51,51 @@ void testPoppingPushingElements()
 
     cout
         << "Push front and push back tests passed successfully!" << endl;
+}
+
+void testCopyconstructor()
+{
+    // Create an original sequence
+    Sequence<int, std::string> originalSeq;
+    originalSeq.push_back(1, "one");
+    originalSeq.push_back(2, "two");
+    originalSeq.push_back(3, "three");
+
+    // Test copy constructor
+    Sequence<int, std::string> copiedSeq1 = originalSeq;
+    assert(copiedSeq1.getLength() == originalSeq.getLength());
+    assert(copiedSeq1.exists(1));
+    assert(copiedSeq1.exists(2));
+    assert(copiedSeq1.exists(3));
+
+    // Modify the original sequence
+    originalSeq.remove(2);
+    assert(originalSeq.getLength() == 2);
+    assert(originalSeq.exists(2) == false);
+
+    // Check if the copied sequence remains unchanged
+    assert(copiedSeq1.getLength() == 3);
+    assert(copiedSeq1.exists(2));
+
+    // Test copy assignment operator
+    Sequence<int, std::string> copiedSeq2;
+    copiedSeq2.push_back(4, "four");
+    copiedSeq2.push_back(5, "five");
+    copiedSeq2 = originalSeq;
+    assert(copiedSeq2.getLength() == originalSeq.getLength());
+    assert(copiedSeq2.exists(1));
+    assert(copiedSeq2.exists(3));
+
+    // Modify the original sequence again
+    originalSeq.remove(1);
+    assert(originalSeq.getLength() == 1);
+    assert(originalSeq.exists(1) == false);
+
+    // Check if the copied sequence remains unchanged
+    assert(copiedSeq2.getLength() == 2);
+    assert(copiedSeq2.exists(1));
+
+    std::cout << "Copy constructor and operator= tests passed!" << std::endl;
 }
 
 void testIterator()
@@ -303,15 +349,65 @@ void testInsertBefore()
     std::cout << "Insert before tests passed successfully!" << std::endl;
 }
 
+void test_split_pos()
+{
+    Sequence<int, int> seq;
+    for (int i = 0; i < 25; ++i)
+    {
+        seq.push_back(i, i);
+    }
+
+    Sequence<int, int> seq1, seq2;
+
+    // Test split_pos function
+    split_pos(seq, 2, 2, 3, 4, seq1, seq2);
+    // Check seq
+    assert(seq.getLength() == 5);
+    assert(seq.exists(0));
+    assert(seq.exists(1));
+    assert(seq.exists(22));
+    assert(seq.exists(23));
+    assert(seq.exists(24));
+
+    // Check seq1
+    assert(seq1.getLength() == 8);
+    assert(seq1.exists(2));
+    assert(seq1.exists(3));
+    assert(seq1.exists(7));
+    assert(seq1.exists(8));
+    assert(seq1.exists(12));
+    assert(seq1.exists(13));
+    assert(seq1.exists(17));
+    assert(seq1.exists(18));
+
+    // Check seq2
+    assert(seq2.getLength() == 12);
+    assert(seq2.exists(4));
+    assert(seq2.exists(5));
+    assert(seq2.exists(6));
+    assert(seq2.exists(9));
+    assert(seq2.exists(10));
+    assert(seq2.exists(11));
+    assert(seq2.exists(14));
+    assert(seq2.exists(15));
+    assert(seq2.exists(16));
+    assert(seq2.exists(19));
+    assert(seq2.exists(20));
+    assert(seq2.exists(21));
+
+    std::cout << "split_pos function tests passed!" << std::endl;
+}
 int main()
 {
 
     testPoppingPushingElements();
+    testCopyconstructor();
     testIterator();
     testFindingElements();
     testRemove();
     testInsertAfter();
     testInsertBefore();
+    test_split_pos();
     cout
         << "End of tests!" << endl;
 }
