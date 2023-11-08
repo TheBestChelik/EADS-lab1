@@ -11,12 +11,10 @@ class Sequence;
 template <typename Key, typename Info>
 ostream &operator<<(ostream &os, const Sequence<Key, Info> &sequence)
 {
-    typename Sequence<Key, Info>::Iterator iter = sequence.begin();
-
     os << "[";
     for (auto it = sequence.begin(); it != sequence.empty(); it++)
     {
-        os << "(" << iter.key() << ", " << iter.info() << ")";
+        os << "(" << it.key() << ", " << it.info() << ")";
         if (it != sequence.end())
         {
             os << ", ";
@@ -202,6 +200,10 @@ public:
             return temp;
         };
 
+        /**
+         *
+         * @return Key& on which iterator is pointing
+         */
         Key &key() const
         {
             if (current == nullptr)
@@ -210,6 +212,11 @@ public:
             }
             return current->key;
         };
+
+        /**
+         *
+         * @return Info& on which iterator is pointing
+         */
         Info &info() const
         {
             if (current == nullptr)
@@ -220,11 +227,22 @@ public:
         };
     };
 
+    /**
+     * @brief Get the Length sequence
+     *
+     * @return int len of sequence
+     */
     int getLength() const
     {
         return length;
     };
 
+    /**
+     * Checks if sequence is empty
+     *
+     * @return true if sequence is empty
+     * @return false if sequence is not empty
+     */
     bool isEmpty() const
     {
         return length == 0;
@@ -233,7 +251,6 @@ public:
     /**
      * Inserts a new element with the provided key and info after the specified target element
      * of a given key and occurrence.
-     *
      *
      * @param key The key of the new element to insert.
      * @param info The info of the new element to insert.
@@ -259,6 +276,18 @@ public:
         length++;
         return true; // Element inserted successfully
     };
+
+    /**
+     * Inserts a new element with the provided key and info after the specified target element
+     * of a given key and occurrence.
+     *
+     *
+     * @param key The key of the new element to insert.
+     * @param info The info of the new element to insert.
+     * @param target_key The key before which the new element should be inserted.
+     * @param occurrence Specifies after which occurrence of `target_key` to insert.
+     * @return true if the element was successfully inserted, false otherwise.
+     */
     bool insert_before(const Key &key, const Info &info, const Key &target_key, unsigned int occurrence = 1)
     {
 
@@ -283,6 +312,12 @@ public:
         return true; // Element inserted successfully
     };
 
+    /**
+     * @brief adds element to the beginning of sequence
+     *
+     * @param key key to be inserted
+     * @param info info to be inserted
+     */
     void push_front(const Key &key, const Info &info)
     {
         Node *newNode = new Node(key, info, head);
@@ -293,6 +328,13 @@ public:
         }
         length++;
     };
+
+    /**
+     * @brief adds element to the end of sequence
+     *
+     * @param key key to be inserted
+     * @param info info to be inserted
+     */
     void push_back(const Key &key, const Info &info)
     {
         Node *newNode = new Node(key, info, nullptr);
@@ -345,6 +387,12 @@ public:
         return true; // Element removed successfully
     };
 
+    /**
+     * @brief removes first element in sequence
+     *
+     * @return true if element removed successfully
+     * @return false if element is not removed
+     */
     bool pop_front()
     {
         if (isEmpty())
@@ -365,6 +413,13 @@ public:
         length--;
         return true; // Successfully popped the first element
     };
+
+    /**
+     * @brief removed last element in sequence
+     *
+     * @return true if element removed successfully
+     * @return false if element is not removed
+     */
     bool pop_back()
     {
         if (isEmpty())
@@ -400,6 +455,10 @@ public:
         return true; // Successfully popped the last element
     };
 
+    /**
+     * @brief clears the sequence
+     *
+     */
     void clear()
     {
         while (pop_front())
@@ -420,7 +479,10 @@ public:
     };
 
     /**
-     * Counts the number of occurrences of the given key.
+     * @brief number of occurrences of key
+     *
+     * @param key is key which occurrences we count
+     * @return unsigned int number of occurrences of key
      */
     unsigned int occurrencesOf(const Key &key) const
     {
@@ -488,28 +550,30 @@ public:
     };
 
     /**
-     * Returns first or last element of sequence
      *
-     * @param [out] it is iterator pointing on found element
-     * @return true if the specified element is found, false otherwise.
+     * @return Iterator pointing to the first element
      */
     Iterator begin() const
     {
         return Iterator(head);
     };
+
+    /**
+     *
+     * @return Iterator pointing to the last element
+     */
     Iterator end() const
     {
         return Iterator(tail);
     };
+
+    /**
+     *
+     * @return Iterator pointing null
+     */
     Iterator empty() const
     {
         return Iterator(nullptr);
     };
 };
-
-// operator<<
-// sort
-// reverse
-// swap
-// subSequence
 #endif
