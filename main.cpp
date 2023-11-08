@@ -2,6 +2,7 @@
 #include "split.hpp"
 #include <cassert>
 #include <iostream>
+#include <sstream>
 #include <string>
 
 using namespace std;
@@ -348,6 +349,25 @@ void testInsertBefore()
     std::cout << "Insert before tests passed successfully!" << std::endl;
 }
 
+void testPrintSequence()
+{
+    // Create a sequence
+    Sequence<int, std::string> sequence;
+    sequence.push_back(1, "One");
+    sequence.push_back(2, "Two");
+    sequence.push_back(3, "Three");
+
+    // Use ostringstream to capture the output
+    ostringstream output;
+    output << sequence;
+
+    // Check the printed output
+    std::string expectedOutput = "[(1, One), (2, Two), (3, Three)]";
+    assert(output.str() == expectedOutput);
+
+    std::cout << "Print Sequence test passed!" << std::endl;
+}
+
 void testSplitPos()
 {
     Sequence<int, int> seq;
@@ -363,59 +383,30 @@ void testSplitPos()
 
     // Check seq
     Sequence<int, int>::Iterator it = seq.begin();
-    assert(it.key() == 0);
-    ++it;
-    assert(it.key() == 1);
-    ++it;
-    assert(it.key() == 22);
-    ++it;
-    assert(it.key() == 23);
-    ++it;
-    assert(it.key() == 24);
+    int expectedSeq[] = {0, 1, 22, 23, 24};
+    for (int i = 0; i < 5; ++i)
+    {
+        assert(it.key() == expectedSeq[i]);
+        ++it;
+    }
 
     // Check seq1
     Sequence<int, int>::Iterator it1 = seq1.begin();
-    assert(it1.key() == 2);
-    ++it1;
-    assert(it1.key() == 3);
-    ++it1;
-    assert(it1.key() == 7);
-    ++it1;
-    assert(it1.key() == 8);
-    ++it1;
-    assert(it1.key() == 12);
-    ++it1;
-    assert(it1.key() == 13);
-    ++it1;
-    assert(it1.key() == 17);
-    ++it1;
-    assert(it1.key() == 18);
+    int expectedSeq1[] = {2, 3, 7, 8, 12, 13, 17, 18};
+    for (int i = 0; i < 8; ++i)
+    {
+        assert(it1.key() == expectedSeq1[i]);
+        ++it1;
+    }
 
     // Check seq2
     Sequence<int, int>::Iterator it2 = seq2.begin();
-    assert(it2.key() == 4);
-    ++it2;
-    assert(it2.key() == 5);
-    ++it2;
-    assert(it2.key() == 6);
-    ++it2;
-    assert(it2.key() == 9);
-    ++it2;
-    assert(it2.key() == 10);
-    ++it2;
-    assert(it2.key() == 11);
-    ++it2;
-    assert(it2.key() == 14);
-    ++it2;
-    assert(it2.key() == 15);
-    ++it2;
-    assert(it2.key() == 16);
-    ++it2;
-    assert(it2.key() == 19);
-    ++it2;
-    assert(it2.key() == 20);
-    ++it2;
-    assert(it2.key() == 21);
+    int expectedSeq2[] = {4, 5, 6, 9, 10, 11, 14, 15, 16, 19, 20, 21};
+    for (int i = 0; i < 12; ++i)
+    {
+        assert(it2.key() == expectedSeq2[i]);
+        ++it2;
+    }
 
     std::cout << "split_pos function tests passed!" << std::endl;
 }
@@ -481,62 +472,29 @@ void testSplitKey()
     split_key(seq, start_key, start_occ, len1, len2, count, seq1, seq2);
 
     // Check the results using iterators
+    int expectedSeq[] = {0, 1, 2, 3, 4, 5, 6, 17, 23, 19, 20, 21, 22, 23, 24};
     Sequence<int, int>::Iterator itSeq = seq.begin();
-    assert(itSeq.key() == 0);
-    ++itSeq;
-    assert(itSeq.key() == 1);
-    ++itSeq;
-    assert(itSeq.key() == 2);
-    ++itSeq;
-    assert(itSeq.key() == 3);
-    ++itSeq;
-    assert(itSeq.key() == 4);
-    ++itSeq;
-    assert(itSeq.key() == 5);
-    ++itSeq;
-    assert(itSeq.key() == 6);
-    ++itSeq;
-    assert(itSeq.key() == 17);
-    ++itSeq;
-    assert(itSeq.key() == 23);
-    ++itSeq;
-    assert(itSeq.key() == 19);
-    ++itSeq;
-    assert(itSeq.key() == 20);
-    ++itSeq;
-    assert(itSeq.key() == 21);
-    ++itSeq;
-    assert(itSeq.key() == 22);
-    ++itSeq;
-    assert(itSeq.key() == 23);
-    ++itSeq;
-    assert(itSeq.key() == 24);
+    for (int i = 0; i < sizeof(expectedSeq) / sizeof(expectedSeq[0]); ++i)
+    {
+        assert(itSeq.key() == expectedSeq[i]);
+        ++itSeq;
+    }
 
-    assert(itSeq == seq.end());
-
+    int expectedSeq1[] = {4, 8, 9, 12, 2, 14};
     Sequence<int, int>::Iterator itSeq1 = seq1.begin();
-    assert(itSeq1.key() == 4);
-    ++itSeq1;
-    assert(itSeq1.key() == 8);
-    ++itSeq1;
-    assert(itSeq1.key() == 9);
-    ++itSeq1;
-    assert(itSeq1.key() == 12);
-    ++itSeq1;
-    assert(itSeq1.key() == 2);
-    ++itSeq1;
-    assert(itSeq1.key() == 14);
-    assert(itSeq1 == seq1.end());
+    for (int i = 0; i < sizeof(expectedSeq1) / sizeof(expectedSeq1[0]); ++i)
+    {
+        assert(itSeq1.key() == expectedSeq1[i]);
+        ++itSeq1;
+    }
 
+    int expectedSeq2[] = {4, 11, 15, 11};
     Sequence<int, int>::Iterator itSeq2 = seq2.begin();
-    assert(itSeq2.key() == 4);
-    ++itSeq2;
-    assert(itSeq2.key() == 11);
-    ++itSeq2;
-    assert(itSeq2.key() == 15);
-    ++itSeq2;
-    assert(itSeq2.key() == 11);
-    assert(itSeq2 == seq2.end());
+    for (int i = 0; i < sizeof(expectedSeq2) / sizeof(expectedSeq2[0]); ++i)
+    {
+        assert(itSeq2.key() == expectedSeq2[i]);
+        ++itSeq2;
+    }
 
     std::cout << "Split key tests passed successfully!" << std::endl;
 }
@@ -585,6 +543,7 @@ int main()
     testRemove();
     testInsertAfter();
     testInsertBefore();
+    testPrintSequence();
     testSplitPos();
     testSplitPos2();
     testSplitKey();
