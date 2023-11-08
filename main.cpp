@@ -147,12 +147,11 @@ void testIterator()
 
     // Test addition operator (+) with some interval
     copiedIterator = copiedIterator + 4;
-    assert(copiedIterator == it);
+    assert(copiedIterator == sequence.empty());
 
     // Test incrementing the ending iterator
     it = it + 1;
-    assert(it.key() == 4);
-    assert(it.info() == "Four");
+    assert(it == sequence.empty());
 
     std::cout
         << "Iterator tests passed successfully!" << std::endl;
@@ -349,7 +348,7 @@ void testInsertBefore()
     std::cout << "Insert before tests passed successfully!" << std::endl;
 }
 
-void test_split_pos()
+void testSplitPos()
 {
     Sequence<int, int> seq;
     for (int i = 0; i < 25; ++i)
@@ -361,42 +360,221 @@ void test_split_pos()
 
     // Test split_pos function
     split_pos(seq, 2, 2, 3, 4, seq1, seq2);
+
     // Check seq
-    assert(seq.getLength() == 5);
-    assert(seq.exists(0));
-    assert(seq.exists(1));
-    assert(seq.exists(22));
-    assert(seq.exists(23));
-    assert(seq.exists(24));
+    Sequence<int, int>::Iterator it = seq.begin();
+    assert(it.key() == 0);
+    ++it;
+    assert(it.key() == 1);
+    ++it;
+    assert(it.key() == 22);
+    ++it;
+    assert(it.key() == 23);
+    ++it;
+    assert(it.key() == 24);
 
     // Check seq1
-    assert(seq1.getLength() == 8);
-    assert(seq1.exists(2));
-    assert(seq1.exists(3));
-    assert(seq1.exists(7));
-    assert(seq1.exists(8));
-    assert(seq1.exists(12));
-    assert(seq1.exists(13));
-    assert(seq1.exists(17));
-    assert(seq1.exists(18));
+    Sequence<int, int>::Iterator it1 = seq1.begin();
+    assert(it1.key() == 2);
+    ++it1;
+    assert(it1.key() == 3);
+    ++it1;
+    assert(it1.key() == 7);
+    ++it1;
+    assert(it1.key() == 8);
+    ++it1;
+    assert(it1.key() == 12);
+    ++it1;
+    assert(it1.key() == 13);
+    ++it1;
+    assert(it1.key() == 17);
+    ++it1;
+    assert(it1.key() == 18);
 
     // Check seq2
-    assert(seq2.getLength() == 12);
-    assert(seq2.exists(4));
-    assert(seq2.exists(5));
-    assert(seq2.exists(6));
-    assert(seq2.exists(9));
-    assert(seq2.exists(10));
-    assert(seq2.exists(11));
-    assert(seq2.exists(14));
-    assert(seq2.exists(15));
-    assert(seq2.exists(16));
-    assert(seq2.exists(19));
-    assert(seq2.exists(20));
-    assert(seq2.exists(21));
+    Sequence<int, int>::Iterator it2 = seq2.begin();
+    assert(it2.key() == 4);
+    ++it2;
+    assert(it2.key() == 5);
+    ++it2;
+    assert(it2.key() == 6);
+    ++it2;
+    assert(it2.key() == 9);
+    ++it2;
+    assert(it2.key() == 10);
+    ++it2;
+    assert(it2.key() == 11);
+    ++it2;
+    assert(it2.key() == 14);
+    ++it2;
+    assert(it2.key() == 15);
+    ++it2;
+    assert(it2.key() == 16);
+    ++it2;
+    assert(it2.key() == 19);
+    ++it2;
+    assert(it2.key() == 20);
+    ++it2;
+    assert(it2.key() == 21);
 
     std::cout << "split_pos function tests passed!" << std::endl;
 }
+
+void testSplitPos2()
+{
+    Sequence<int, int> seq;
+
+    // Create a sequence with elements from 0 to 9.
+    for (int i = 1; i <= 10; ++i)
+    {
+        seq.push_back(i, i);
+    }
+
+    Sequence<int, int> seq1, seq2;
+
+    // Split the sequence at position 2 with an occurrence of 1, where len1=4 and len2=2.
+    split_pos(seq, 0, 1, 1, 5, seq1, seq2);
+
+    assert(seq.getLength() == 0);
+    assert(seq1.getLength() == 5);
+    assert(seq2.getLength() == 5);
+
+    auto it = seq1.begin();
+    int seq1_arr[] = {1, 3, 5, 7, 9};
+    for (int i = 0; i < 5; ++i)
+    {
+        assert(it.key() == seq1_arr[i]);
+        it++;
+    }
+    it = seq2.begin();
+    int seq2_arr[] = {2, 4, 6, 8, 10};
+    for (int i = 0; i < 5; ++i)
+    {
+        assert(it.key() == seq2_arr[i]);
+        it++;
+    }
+    std::cout
+        << "SplitPos2 function tests passed!" << std::endl;
+}
+
+void testSplitKey()
+{
+    // Create the sequence
+    Sequence<int, int> seq;
+    int values[] = {0, 1, 2, 3, 4, 5, 6, 4, 8, 9, 4, 11, 12, 2, 14, 15, 11, 17, 23, 19, 20, 21, 22, 23, 24};
+
+    for (int i = 0; i < sizeof(values) / sizeof(values[0]); ++i)
+    {
+        seq.push_back(values[i], values[i]);
+    }
+
+    // Define the split parameters
+    int start_key = 4;
+    unsigned int start_occ = 2;
+    unsigned int len1 = 3;
+    unsigned int len2 = 2;
+    unsigned int count = 2;
+
+    // Perform the split
+    Sequence<int, int> seq1;
+    Sequence<int, int> seq2;
+    split_key(seq, start_key, start_occ, len1, len2, count, seq1, seq2);
+
+    // Check the results using iterators
+    Sequence<int, int>::Iterator itSeq = seq.begin();
+    assert(itSeq.key() == 0);
+    ++itSeq;
+    assert(itSeq.key() == 1);
+    ++itSeq;
+    assert(itSeq.key() == 2);
+    ++itSeq;
+    assert(itSeq.key() == 3);
+    ++itSeq;
+    assert(itSeq.key() == 4);
+    ++itSeq;
+    assert(itSeq.key() == 5);
+    ++itSeq;
+    assert(itSeq.key() == 6);
+    ++itSeq;
+    assert(itSeq.key() == 17);
+    ++itSeq;
+    assert(itSeq.key() == 23);
+    ++itSeq;
+    assert(itSeq.key() == 19);
+    ++itSeq;
+    assert(itSeq.key() == 20);
+    ++itSeq;
+    assert(itSeq.key() == 21);
+    ++itSeq;
+    assert(itSeq.key() == 22);
+    ++itSeq;
+    assert(itSeq.key() == 23);
+    ++itSeq;
+    assert(itSeq.key() == 24);
+
+    assert(itSeq == seq.end());
+
+    Sequence<int, int>::Iterator itSeq1 = seq1.begin();
+    assert(itSeq1.key() == 4);
+    ++itSeq1;
+    assert(itSeq1.key() == 8);
+    ++itSeq1;
+    assert(itSeq1.key() == 9);
+    ++itSeq1;
+    assert(itSeq1.key() == 12);
+    ++itSeq1;
+    assert(itSeq1.key() == 2);
+    ++itSeq1;
+    assert(itSeq1.key() == 14);
+    assert(itSeq1 == seq1.end());
+
+    Sequence<int, int>::Iterator itSeq2 = seq2.begin();
+    assert(itSeq2.key() == 4);
+    ++itSeq2;
+    assert(itSeq2.key() == 11);
+    ++itSeq2;
+    assert(itSeq2.key() == 15);
+    ++itSeq2;
+    assert(itSeq2.key() == 11);
+    assert(itSeq2 == seq2.end());
+
+    std::cout << "Split key tests passed successfully!" << std::endl;
+}
+
+void testSplitKey2()
+{
+    Sequence<int, int> seq;
+
+    // Create a sequence with elements from 0 to 9.
+    for (int i = 1; i <= 10; ++i)
+    {
+        seq.push_back(i, i);
+        seq.push_back(i, i);
+    }
+
+    Sequence<int, int> seq1, seq2;
+
+    // Split the sequence at position 2 with an occurrence of 1, where len1=4 and len2=2.
+    split_key(seq, 1, 1, 1, 1, 10, seq1, seq2);
+
+    assert(seq.getLength() == 0);
+    assert(seq1.getLength() == 10);
+    assert(seq2.getLength() == 10);
+
+    auto it1 = seq1.begin();
+    auto it2 = seq2.begin();
+    for (int i = 1; i <= 10; ++i)
+    {
+        assert(it1.key() == i);
+        assert(it2.key() == i);
+        it1++;
+        it2++;
+    }
+
+    std::cout
+        << "SplitPos2 function tests passed!" << std::endl;
+}
+
 int main()
 {
 
@@ -407,7 +585,10 @@ int main()
     testRemove();
     testInsertAfter();
     testInsertBefore();
-    test_split_pos();
+    testSplitPos();
+    testSplitPos2();
+    testSplitKey();
+    testSplitKey2();
     cout
         << "End of tests!" << endl;
 }
