@@ -23,14 +23,14 @@ void split_pos(/*const*/ Sequence<Key, Info> &seq, int start_pos, int len1, int 
     for (int c = 0; c < count; c++)
     {
         int copied_count = 0;
-        while (copied_count < len1)
+        while (copied_count < len1 && it != seq.empty())
         {
             seq1.push_back(it.key(), it.info());
             it++;
             copied_count++;
         }
         copied_count = 0;
-        while (copied_count < len2)
+        while (copied_count < len2 && it != seq.empty())
         {
             seq2.push_back(it.key(), it.info());
             it++;
@@ -67,7 +67,7 @@ void split_key(/*const*/ Sequence<Key, Info> &seq, const Key &start_key, int sta
     {
 
         int copied_count = 0;
-        while (copied_count < len1)
+        while (copied_count < len1 && it != seq.empty())
         {
             seq1.push_back(it.key(), it.info());
             it++;
@@ -75,7 +75,7 @@ void split_key(/*const*/ Sequence<Key, Info> &seq, const Key &start_key, int sta
         }
 
         copied_count = 0;
-        while (copied_count < len2)
+        while (copied_count < len2 && it != seq.empty())
         {
             seq2.push_back(it.key(), it.info());
             it++;
