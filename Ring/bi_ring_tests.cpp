@@ -548,6 +548,77 @@ void unique_test()
     cout << "Unique test passed" << endl;
 }
 
+void join_test()
+{
+    BiRing<int, std::string> ring1;
+    ring1.push_back(1, "One");
+    ring1.push_back(2, "Two");
+    ring1.push_back(3, "Three");
+    ring1.push_back(4, "Four");
+
+    BiRing<int, std::string> ring2;
+    ring1.push_back(1, "Раз");
+    ring1.push_back(2, "Два");
+    ring1.push_back(3, "Три");
+
+    auto res = join(ring1, ring2);
+
+    std::string info_expected[] = {"OneРаз", "TwoДва", "ThreeТри", "Four"};
+    auto it = res.cbegin();
+    for (int i = 0; i < 4; i++)
+    {
+        assert(it.key() == i + 1);
+        assert(it.info() == info_expected[i]);
+        it.next();
+    }
+    cout << "Join test passed" << endl;
+}
+
+void shuffle_test()
+{
+    BiRing<std::string, int> first;
+    BiRing<std::string, int> second;
+    std::string first_keys[] = {"uno",
+                                "due",
+                                "tre",
+                                "quattro"};
+    std::string second_keys[] = {"bir",
+                                 "iki",
+                                 "uc",
+                                 "dort",
+                                 "bes"};
+    for (int i = 0; i < 4; i++)
+    {
+        first.push_back(first_keys[i], i + 1);
+    }
+    for (int i = 0; i < 5; i++)
+    {
+        second.push_back(second_keys[i], i + 1);
+    }
+
+    auto res = shuffle(first, 1, second, 2, 3);
+    int exp_infos[] = {1, 1, 2, 2, 3, 4, 3, 5, 1};
+    std::string exp_keys[] = {"uno",
+                              "bir",
+                              "iki",
+                              "due",
+                              "uc",
+                              "dort",
+                              "tre",
+                              "bes",
+                              "bir"};
+
+    auto it = res.cbegin();
+    for (int i = 0; i < 9; i++)
+    {
+        assert(it.key() == exp_keys[i]);
+        assert(it.info() == exp_infos[i]);
+        it.next();
+    }
+
+    cout << "Shuffle test passed" << endl;
+}
+
 int main()
 {
     cout << "Start of tests" << endl;
@@ -584,4 +655,10 @@ int main()
     filter_test();
 
     unique_test();
+
+    join_test();
+
+    shuffle_test();
+
+    cout << "All external functions tests have passed!" << endl;
 }
