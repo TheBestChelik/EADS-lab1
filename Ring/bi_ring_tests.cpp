@@ -297,6 +297,165 @@ void iterator_decrement_test()
 
     cout << "Iterator decrement tests passed" << endl;
 }
+
+void find_key_test()
+{
+    BiRing<int, std::string> ring;
+    ring.push_back(1, "One");
+    ring.push_back(2, "Two");
+    ring.push_back(3, "Three");
+    ring.push_back(3, "SecondThree");
+    ring.push_back(4, "Four");
+    ring.push_back(3, "ThirdThree");
+    ring.push_back(5, "Five");
+
+    // Test with modifying_iterator
+    {
+        auto it = ring.begin();
+        auto search_from = ring.begin();
+        auto search_till = ring.end();
+
+        bool found = ring.find_key(it, 3, search_from, search_till);
+
+        assert(found);
+        assert(it.key() == 3);
+        assert(it.info() == "Three");
+    }
+
+    // Test with constant_iterator
+    {
+        auto it = ring.cbegin();
+        auto search_from = ring.cbegin();
+        auto search_till = ring.cend();
+
+        bool found = ring.find_key(it, 3, search_from, search_till);
+
+        assert(found);
+        assert(it.key() == 3);
+        assert(it.info() == "Three");
+    }
+
+    // Search_from is after search_till
+    cout << "Reversed search" << endl;
+    {
+        auto it = ring.begin();
+        auto search_from = --ring.end();
+        assert(search_from.key() == 5);
+        auto search_till = search_from - 1;
+        assert(search_till.key() == 3);
+
+        bool found = ring.find_key(it, 4, search_from, search_till);
+
+        assert(found == true);
+        assert(it.key() == 4);
+        assert(it.info() == "Four");
+    }
+
+    // Test with a key that doesn't exist
+    {
+        auto it = ring.begin();
+        auto search_from = ring.begin();
+        auto search_till = ring.end();
+
+        bool found = ring.find_key(it, 99, search_from, search_till);
+
+        assert(!found);
+    }
+
+    // Finding different occurrences
+    {
+
+        std::string Infos[] = {"Three", "SecondThree", "ThirdThree"};
+        auto it = ring.begin();
+        auto search_from = ring.begin();
+        auto search_till = ring.end();
+        int i = 0;
+        while (ring.find_key(it, 3, search_from, search_till))
+        {
+            search_from = it + 1;
+            assert(it.key() == 3);
+            assert(it.info() == Infos[i]);
+            i++;
+        }
+    }
+
+    cout << "Find key tests passed" << endl;
+}
+
+void iterator_operators_test()
+{
+    BiRing<int, std::string> originalRing;
+    originalRing.push_back(1, "A");
+    originalRing.push_back(2, "A");
+    originalRing.push_back(3, "A");
+    originalRing.push_back(4, "A");
+    originalRing.push_back(5, "A");
+    originalRing.push_back(6, "A");
+    originalRing.push_back(7, "A");
+
+    auto it = originalRing.begin();
+    it = it + 3;
+    assert(it.key() == 4);
+    it = it - 2;
+    assert(it.key() == 2);
+    it = it + originalRing.getLength();
+    assert(it.key() == 2);
+    it = it + 1000 * originalRing.getLength();
+    assert(it.key() == 2);
+    it = it + 1000 * originalRing.getLength() - 1;
+    assert(it.key() == 1);
+    it = it - originalRing.getLength();
+    assert(it.key() == 1);
+    it = it - 1000 * originalRing.getLength();
+    assert(it.key() == 1);
+    it = it - 1000 * originalRing.getLength() - 1;
+    assert(it.key() == 7);
+
+    cout << "Iterator operator tests passed" << endl;
+}
+
+void occurrencesOf_test()
+{
+    BiRing<int, std::string> ring;
+    ring.push_back(1, "One");
+    ring.push_back(2, "Two");
+    ring.push_back(1, "One");
+    ring.push_back(3, "Three");
+    ring.push_back(1, "One");
+    ring.push_back(4, "Four");
+
+    {
+        unsigned int count = ring.occurrencesOf(1);
+        assert(count == 3);
+    }
+
+    // Test with a key that doesn't exist
+    {
+        unsigned int count = ring.occurrencesOf(99);
+        assert(count == 0);
+    }
+
+    // Test with an empty ring
+    {
+        BiRing<int, std::string> emptyRing;
+        unsigned int count = emptyRing.occurrencesOf(1);
+        assert(count == 0);
+    }
+
+    // Test with a complex key (assuming Key supports ==)
+    {
+        BiRing<std::pair<int, char>, std::string> complexRing;
+        complexRing.push_back({1, 'a'}, "Pair A");
+        complexRing.push_back({2, 'b'}, "Pair B");
+        complexRing.push_back({1, 'a'}, "Pair A");
+
+        unsigned int count = complexRing.occurrencesOf({1, 'a'});
+        assert(count == 2);
+    }
+
+    cout << "OccurrencesOf tests passed" << endl;
+}
+
 int main()
 {
     cout << "Start of tests" << endl;
@@ -320,6 +479,12 @@ int main()
     clear_test();
 
     copy_constructor_test();
+
+    find_key_test();
+
+    iterator_operators_test();
+
+    occurrencesOf_test();
 
     cout
         << "All tests have passed!" << endl;
