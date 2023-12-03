@@ -291,7 +291,7 @@ public:
     template <typename iterator>
     bool find_key(iterator &it, const Key &key,
                   iterator &search_from,
-                  iterator &search_till)
+                  iterator &search_till) const
     {
         for (; search_from != search_till; search_from.next())
         {
@@ -411,3 +411,50 @@ public:
         return constant_iterator(sentinel, *this);
     };
 };
+
+//////EXTERNAL FUNCTIONS///////////////
+template <typename Key, typename Info>
+BiRing<Key, Info> filter(const BiRing<Key, Info> &source, bool (*pred)(const Key &))
+{
+    BiRing<Key, Info> result;
+
+    for (auto it = source.cbegin(); it != source.cend(); it.next())
+    {
+        if (pred(it.key()))
+        {
+            result.push_back(it.key(), it.info());
+        }
+    }
+
+    return result;
+}
+
+template <typename Key, typename Info>
+BiRing<Key, Info> unique(const BiRing<Key, Info> &src, Info (*aggregate)(const Key &, const Info &, const Info &))
+{
+    BiRing<Key, Info> result;
+
+    for (auto it = src.cbegin(); it != src.cend(); it.next())
+    {
+        auto search_res = result.cbegin();
+        auto sf = result.cbegin();
+        auto st = result.cend();
+        Key key = it.key();
+        if (result.find_key(search_res, key, sf, st))
+        {
+            continue;
+        }
+        auto searching_it = src.cbegin();
+        auto search_from = it;
+        search_from.next();
+        auto search_till = src.cend();
+        Info new_info = it.info();
+        while (src.find_key(searching_it, key, search_from, search_till))
+        {
+            new_info = aggregate(key, new_info, searching_it.info());
+            search_from.next();
+        }
+        result.push_back(it.key(), new_info);
+    }
+    return result;
+}
