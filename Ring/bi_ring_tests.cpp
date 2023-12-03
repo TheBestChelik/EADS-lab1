@@ -456,6 +456,98 @@ void occurrencesOf_test()
     cout << "OccurrencesOf tests passed" << endl;
 }
 
+bool aboba(const std::string &str)
+{
+    return str.size() > 3;
+}
+
+void filter_test()
+{
+    BiRing<std::string, int> source;
+    std::string keys[] = {"un", "deux", "trois", "quatre", "cinq", "six", "sept", "huit", "neuf", "dix"};
+    for (int i = 0; i < 10; i++)
+    {
+        source.push_back(keys[i], i + 1);
+    }
+
+    // auto res = filter(source, [](const std::string &str)
+    //                   { return str.size() > 3; })
+
+    auto res = filter(source, aboba);
+
+    std::string res_keys[] = {"deux", "trois", "quatre", "cinq", "sept", "huit", "neuf"};
+    int res_infos[] = {2, 3, 4, 5, 7, 8, 9};
+    int i = 0;
+    for (auto it = res.cbegin(); it != res.cend(); it.next())
+    {
+        assert(it.key() == res_keys[i]);
+        assert(it.info() == res_infos[i]);
+        i++;
+    }
+
+    cout << "Filter test passed" << endl;
+}
+
+template <typename Key, typename Info>
+Info _concatenate_info(const Key &, const Info &i1, const Info &i2)
+{
+    return i1 + "-" + i2;
+}
+void unique_test()
+{
+    BiRing<int, std::string> source;
+    std::string infos_fr[] = {"un", "deux", "trois", "quatre", "cinq", "six", "sept", "huit", "neuf", "dix"};
+    std::string infos_en[] = {"one",
+                              "two",
+                              "three",
+                              "four",
+                              "five",
+                              "six",
+                              "seven",
+                              "eight",
+                              "nine",
+                              "ten"};
+    std::string infos_ru[] = {"один",
+                              "два",
+                              "три",
+                              "четыре",
+                              "пять",
+                              "шесть",
+                              "семь",
+                              "восемь",
+                              "девять",
+                              "десять"};
+
+    for (int i = 0; i < 10; i++)
+    {
+        source.push_back(i + 1, infos_fr[i]);
+    }
+    for (int i = 0; i < 10; i++)
+    {
+        source.push_back(i + 1, infos_en[i]);
+    }
+    for (int i = 0; i < 10; i++)
+    {
+        source.push_back(i + 1, infos_ru[i]);
+    }
+
+    source.push_back(777, "Слава Украине");
+
+    auto res = unique(source, _concatenate_info);
+    std::string info_expected[] = {"un-one-один", "deux-two-два", "trois-three-три", "quatre-four-четыре", "cinq-five-пять", "six-six-шесть", "sept-seven-семь", "huit-eight-восемь", "neuf-nine-девять", "dix-ten-десять"};
+    int i = 1;
+    for (auto it = res.cbegin(); it != res.cend() - 1; it.next())
+    {
+        assert(it.key() == i);
+        assert(it.info() == info_expected[i - 1]);
+        i++;
+    }
+    assert((res.cend() - 1).key() == 777);
+    assert((res.cend() - 1).info() == "Слава Украине");
+
+    cout << "Unique test passed" << endl;
+}
+
 int main()
 {
     cout << "Start of tests" << endl;
@@ -487,5 +579,9 @@ int main()
     occurrencesOf_test();
 
     cout
-        << "All tests have passed!" << endl;
+        << "All internal method tests have passed!" << endl;
+
+    filter_test();
+
+    unique_test();
 }
