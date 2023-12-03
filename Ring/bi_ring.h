@@ -458,3 +458,50 @@ BiRing<Key, Info> unique(const BiRing<Key, Info> &src, Info (*aggregate)(const K
     }
     return result;
 }
+
+template <typename Key, typename Info>
+Info sum_info(const Key &, const Info &i1, const Info &i2)
+{
+    return i1 + i2;
+}
+template <typename Key, typename Info>
+BiRing<Key, Info> join(const BiRing<Key, Info> &first, const BiRing<Key, Info> &second)
+{
+    BiRing<Key, Info> pre_result = first;
+    for (auto it = second.cbegin(); it != second.cend(); it.next())
+    {
+        pre_result.push_back(it.key(), it.info());
+    }
+    return unique(pre_result, sum_info<Key, Info>);
+}
+
+template <typename Key, typename Info>
+BiRing<Key, Info> shuffle(
+    const BiRing<Key, Info> &first, unsigned int fcnt,
+    const BiRing<Key, Info> &second, unsigned int scnt,
+    unsigned int reps)
+{
+    BiRing<Key, Info> result;
+
+    auto first_it = first.cbegin();
+    auto second_it = second.cbegin();
+
+    for (unsigned int rep = 0; rep < reps; rep++)
+    {
+        for (unsigned int i = 0; i < fcnt; i++)
+        {
+            result.push_back(first_it.key(), first_it.info());
+
+            first_it++;
+        }
+
+        for (unsigned int i = 0; i < scnt; i++)
+        {
+            result.push_back(second_it.key(), second_it.info());
+
+            second_it++;
+        }
+    }
+
+    return result;
+}
