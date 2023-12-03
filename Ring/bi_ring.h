@@ -44,6 +44,35 @@ private:
             return ptr != other.ptr;
         }
 
+        Iterator &operator=(const Iterator &src)
+        {
+            if (this != &src)
+            {
+                ptr = src.ptr;
+            }
+            return *this;
+        }
+
+        Iterator operator+(int steps) const
+        {
+            Iterator result = *this;
+            for (int i = 0; i < steps % ring.length; ++i)
+            {
+                result++;
+            }
+            return result;
+        }
+
+        Iterator operator-(int steps) const
+        {
+            Iterator result = *this;
+            for (int i = 0; i < steps % ring.length; ++i)
+            {
+                result--;
+            }
+            return result;
+        }
+
         Iterator operator++()
         {
             next();
@@ -249,28 +278,54 @@ public:
         }
     };
 
-    // /**
-    //  * Searches for the specified element of a given key.
-    //  *
-    //  * @param [out] it is iterator pointing on found element
-    //  * @param key The key to search for.
-    //  * @param search_from iterator pointing on element from which start searching
-    //  * @param search_till iterator pointing on element until which element to search
-    //  * @return true if element found
-    //  * @return false if element not found
-    //  */
-    // template <typename Iterator, typename Iterator2>
-    // bool find(Iterator &it, const Key &key,
-    //           Iterator2 &search_from,
-    //           Iterator2 &search_till);
+    /**
+     * Searches for the specified element of a given key.
+     *
+     * @param [out] it is modifying iterator pointing on found element
+     * @param key The key to search for.
+     * @param search_from iterator pointing on element from which start searching
+     * @param search_till iterator pointing on element until which element to search
+     * @return true if element found
+     * @return false if element not found
+     */
+    template <typename iterator>
+    bool find_key(iterator &it, const Key &key,
+                  iterator &search_from,
+                  iterator &search_till)
+    {
+        for (; search_from != search_till; search_from.next())
+        {
+            if (search_from.ptr == sentinel)
+            {
+                continue;
+            }
+            if (search_from.key() == key)
+            {
+                it = search_from;
+                return true;
+            }
+        }
+        return false;
+    };
 
-    // /**
-    //  * @brief number of occurrences of key
-    //  *
-    //  * @param key is key which occurrences we count
-    //  * @return unsigned int number of occurrences of key
-    //  */
-    // unsigned int occurrencesOf(const Key &key) const;
+    /**
+     * @brief number of occurrences of key
+     *
+     * @param key is key which occurrences we count
+     * @return unsigned int number of occurrences of key
+     */
+    unsigned int occurrencesOf(const Key &key) const
+    {
+        unsigned int counter = 0;
+        for (auto it = cbegin(); it != cend(); it.next())
+        {
+            if (it.key() == key)
+            {
+                counter++;
+            }
+        }
+        return counter;
+    };
 
     /**
      * @brief inserts element in the beginning of the ring
