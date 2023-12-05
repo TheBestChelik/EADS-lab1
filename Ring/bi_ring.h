@@ -177,6 +177,26 @@ private:
 
     Node *sentinel;
 
+    template <typename iterator>
+    bool find(iterator &it, const Key &key,
+              iterator search_from,
+              const iterator &search_till) const
+    {
+        for (; search_from != search_till; search_from.next())
+        {
+            if (search_from.ptr == sentinel)
+            {
+                continue;
+            }
+            if (search_from.key() == key)
+            {
+                it = search_from;
+                return true;
+            }
+        }
+        return false;
+    };
+
 public:
     typedef Iterator<Key, Info, BiRing> modifying_iterator;
     typedef Iterator<const Key, const Info, BiRing> constant_iterator;
@@ -308,26 +328,29 @@ public:
      * @return true if element found
      * @return false if element not found
      */
-    template <typename iterator>
-    bool find_key(iterator &it, const Key &key,
-                  iterator &search_from,
-                  iterator &search_till) const
+
+    bool find_key(constant_iterator &it, const Key &key) const
     {
-        for (; search_from != search_till; search_from.next())
-        {
-            if (search_from.ptr == sentinel)
-            {
-                continue;
-            }
-            if (search_from.key() == key)
-            {
-                it = search_from;
-                return true;
-            }
-        }
-        return false;
+        return find(it, key, cbegin(), cend());
     };
 
+    bool find_key(constant_iterator &it, const Key &key,
+                  constant_iterator search_from,
+                  const constant_iterator &search_till) const
+    {
+        return find(it, key, search_from, search_till);
+    };
+
+    bool find_key(modifying_iterator &it, const Key &key)
+    {
+        return find(it, key, cbegin(), cend());
+    };
+    bool find_key(modifying_iterator &it, const Key &key,
+                  modifying_iterator search_from,
+                  const modifying_iterator &search_till)
+    {
+        return find(it, key, search_from, search_till);
+    };
     /**
      * @brief number of occurrences of key
      *
@@ -472,7 +495,7 @@ BiRing<Key, Info> unique(const BiRing<Key, Info> &src, Info (*aggregate)(const K
         while (src.find_key(searching_it, key, search_from, search_till))
         {
             new_info = aggregate(key, new_info, searching_it.info());
-            search_from.next();
+            search_from = searching_it.next();
         }
         result.push_back(it.key(), new_info);
     }
