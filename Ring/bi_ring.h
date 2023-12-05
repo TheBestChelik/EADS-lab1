@@ -3,6 +3,26 @@
 using namespace std;
 
 template <typename Key, typename Info>
+class BiRing;
+
+template <typename Key, typename Info>
+ostream &operator<<(ostream &os, const BiRing<Key, Info> &ring)
+{
+    os << "[";
+    for (auto it = ring.cbegin(); it != ring.cend(); it.next())
+    {
+        os << "(" << it.key() << ", " << it.info() << ")";
+        if (it != --ring.cend())
+        {
+            os << ", ";
+        }
+    }
+    os << "]";
+
+    return os;
+};
+
+template <typename Key, typename Info>
 class BiRing
 {
 private:
@@ -73,7 +93,7 @@ private:
             return result;
         }
 
-        Iterator operator++()
+        Iterator &operator++()
         {
             next();
             if (ptr == ring.sentinel)
@@ -96,7 +116,7 @@ private:
             return temp;
         }
 
-        Iterator operator--()
+        Iterator &operator--()
         {
             prev();
             if (ptr == ring.sentinel)
