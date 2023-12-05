@@ -2,6 +2,7 @@
 #include <iostream>
 #include <cassert>
 #include <algorithm>
+#include <sstream>
 
 using namespace std;
 
@@ -456,6 +457,25 @@ void occurrencesOf_test()
     cout << "OccurrencesOf tests passed" << endl;
 }
 
+void print_test()
+{
+    // Create a sequence
+    BiRing<int, std::string> ring;
+    ring.push_back(1, "One");
+    ring.push_back(2, "Two");
+    ring.push_back(3, "Three");
+
+    // Use ostringstream to capture the output
+    ostringstream output;
+    output << ring;
+
+    // Check the printed output
+    std::string expectedOutput = "[(1, One), (2, Two), (3, Three)]";
+    assert(output.str() == expectedOutput);
+
+    std::cout << "Print Ring test passed!" << std::endl;
+}
+
 bool aboba(const std::string &str)
 {
     return str.size() > 3;
@@ -622,35 +642,35 @@ void shuffle_test()
 int main()
 {
     cout << "Start of tests" << endl;
-
-    iterator_increment_test();
-
-    iterator_decrement_test();
-
-    insert_test();
-
-    push_back_test();
-
-    push_front_test();
-
-    erase_test();
-
-    pop_front_test();
-
-    pop_back_test();
-
-    clear_test();
-
-    copy_constructor_test();
-
-    find_key_test();
-
-    iterator_operators_test();
-
-    occurrencesOf_test();
+    {
+        // Tets for adding elements to ring
+        insert_test();
+        push_back_test();
+        push_front_test();
+    }
+    {
+        // Tests for removing elements
+        erase_test();
+        pop_front_test();
+        pop_back_test();
+        clear_test();
+    }
+    {
+        // Iterator tests
+        iterator_operators_test();
+        iterator_decrement_test();
+        iterator_increment_test();
+    }
+    {
+        // Other tests
+        copy_constructor_test();
+        find_key_test();
+        occurrencesOf_test();
+        print_test();
+    }
 
     cout
-        << "All internal method tests have passed!" << endl;
+        << "All internal tests have passed!" << endl;
 
     filter_test();
 
