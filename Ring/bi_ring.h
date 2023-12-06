@@ -1,5 +1,6 @@
 #include <iostream>
-
+#include <vector>
+#pragma once
 using namespace std;
 
 template <typename Key, typename Info>
@@ -149,6 +150,24 @@ private:
             }
             ptr = ptr->next;
             return *this;
+        }
+
+        Iterator get_next()
+        {
+            if (ptr == nullptr)
+            {
+                throw std::runtime_error("Iterator is null");
+            }
+            return Iterator(ptr->next, ring);
+        }
+
+        Iterator get_prev()
+        {
+            if (ptr == nullptr)
+            {
+                throw std::runtime_error("Iterator is null");
+            }
+            return Iterator(ptr->prev, ring);
         }
 
         Iterator prev()
@@ -328,19 +347,16 @@ public:
      * @return true if element found
      * @return false if element not found
      */
-
     bool find_key(constant_iterator &it, const Key &key) const
     {
         return find(it, key, cbegin(), cend());
     };
-
     bool find_key(constant_iterator &it, const Key &key,
                   constant_iterator search_from,
                   const constant_iterator &search_till) const
     {
         return find(it, key, search_from, search_till);
     };
-
     bool find_key(modifying_iterator &it, const Key &key)
     {
         return find(it, key, cbegin(), cend());
@@ -488,14 +504,13 @@ BiRing<Key, Info> unique(const BiRing<Key, Info> &src, Info (*aggregate)(const K
             continue;
         }
         auto searching_it = src.cbegin();
-        auto search_from = it;
-        search_from.next();
+        auto search_from = it.get_next();
         auto search_till = src.cend();
         Info new_info = it.info();
         while (src.find_key(searching_it, key, search_from, search_till))
         {
             new_info = aggregate(key, new_info, searching_it.info());
-            search_from = searching_it.next();
+            search_from = searching_it.get_next();
         }
         result.push_back(it.key(), new_info);
     }
@@ -545,6 +560,34 @@ BiRing<Key, Info> shuffle(
             second_it++;
         }
     }
+
+    return result;
+}
+
+// Additional function given in the lab
+
+template <typename Key, typename Info>
+vector<BiRing<Key, Info>> split(const BiRing<Key, Info> &source)
+{
+    vector<BiRing<Key, Info>> result;
+    BiRing<Key, Info> current = BiRing<Key, Info>();
+    current.push_back(source.cbegin().key(), source.cbegin().info());
+    for (auto it = source.cbegin().get_next(); it != source.cend(); it.next())
+    {
+
+        if ((--current.cend()).info() < it.info())
+        {
+
+            current.push_back(it.key(), it.info());
+        }
+        else
+        {
+            result.push_back(current);
+            current = BiRing<Key, Info>();
+            current.push_back(it.key(), it.info());
+        }
+    }
+    result.push_back(current);
 
     return result;
 }
