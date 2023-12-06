@@ -1,4 +1,6 @@
 #include "bi_ring.h"
+#include "bi_ring_test.h"
+
 #include <iostream>
 #include <cassert>
 #include <algorithm>
@@ -411,8 +413,12 @@ void iterator_operators_test()
     assert(it.key() == 1);
     it = it - 1000 * originalRing.getLength() - 1;
     assert(it.key() == 7);
+    assert(it.get_next() == originalRing.end());
+    it++;
+    assert(it.get_prev() == originalRing.end());
 
-    cout << "Iterator operator tests passed" << endl;
+    cout
+        << "Iterator operator tests passed" << endl;
 }
 
 void occurrencesOf_test()
@@ -582,7 +588,6 @@ void join_test()
     ring1.push_back(3, "Три");
 
     auto res = join(ring1, ring2);
-
     std::string info_expected[] = {"OneРаз", "TwoДва", "ThreeТри", "Four"};
     auto it = res.cbegin();
     for (int i = 0; i < 4; i++)
@@ -639,6 +644,53 @@ void shuffle_test()
     cout << "Shuffle test passed" << endl;
 }
 
+void split_test()
+{
+    BiRing<std::string, std::string> source;
+    source.push_back("one", "eins");
+    source.push_back("two", "zwei");
+    source.push_back("three", "drei");
+    source.push_back("four", "vier");
+    source.push_back("five", "funf");
+    source.push_back("six", "sechs");
+    source.push_back("seven", "sieben");
+    source.push_back("eight", "acht");
+
+    auto res = split(source);
+
+    vector<BiRing<std::string, std::string>> expected;
+    BiRing<string, string> temp = BiRing<string, string>();
+    temp.push_back("one", "eins");
+    temp.push_back("two", "zwei");
+    expected.push_back(temp);
+    temp.clear();
+    temp.push_back("three", "drei");
+    temp.push_back("four", "vier");
+    expected.push_back(temp);
+    temp.clear();
+    temp.push_back("five", "funf");
+    temp.push_back("six", "sechs");
+    temp.push_back("seven", "sieben");
+    expected.push_back(temp);
+    temp.clear();
+    temp.push_back("eight", "acht");
+    expected.push_back(temp);
+
+    for (int i = 0; i < 4; i++)
+    {
+        auto it_exp = expected[i].cbegin();
+        auto it_res = res[i].cbegin();
+        for (int j = 0; j < expected[i].getLength(); j++)
+        {
+            assert(it_res.key() == it_exp.key());
+            assert(it_res.info() == it_exp.info());
+            it_res.next();
+            it_exp.next();
+        }
+    }
+
+    cout << "Split test passed" << endl;
+}
 int main()
 {
     cout << "Start of tests" << endl;
@@ -681,4 +733,7 @@ int main()
     shuffle_test();
 
     cout << "All external functions tests have passed!" << endl;
+
+    // Additional test
+    split_test();
 }
