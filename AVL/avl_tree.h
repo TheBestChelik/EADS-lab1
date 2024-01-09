@@ -4,9 +4,6 @@
 #pragma once
 using namespace std;
 
-// template <typename Key, typename Info>
-// class avl_tree;
-
 template <typename Key, typename Info>
 class avl_tree
 {
@@ -29,6 +26,27 @@ private:
     };
 
     Node *root;
+
+    int size = 0;
+    bool isBalancedHelper(typename avl_tree<Key, Info>::Node *node)
+    {
+        if (node == nullptr)
+        {
+            return true; // An empty tree is balanced
+        }
+
+        // Calculate the balance factor of the current node
+        int b_factor = avl_tree<Key, Info>::balanceFactor(node);
+
+        // Check if the balance factor is within the range [-1, 0, 1]
+        if (b_factor < -1 || b_factor > 1)
+        {
+            return false; // The tree is not balanced at this node
+        }
+
+        // Recursively check the balance of the left and right subtrees
+        return isBalancedHelper(node->left) && isBalancedHelper(node->right);
+    }
 
     void clearHelper(Node *node)
     {
@@ -166,9 +184,17 @@ private:
         return node;
     }
 
-    Node *findMin(Node *node);
+    Node *findMin(Node *node) const
+    {
+        if (!node->left)
+        {
+            return node;
+        }
+        return findMin(node->left);
+    }
+
     Node *findMax(Node *node);
-    Node *find_node(Node *node, const Key &key) const
+    Node *findNode(Node *node, const Key &key) const
     {
 
         if (node == nullptr || key == node->key)
@@ -178,17 +204,61 @@ private:
 
         if (key < node->key)
         {
-            return find_node(node->left, key);
+            return findNode(node->left, key);
         }
         else
         {
-            return find_node(node->right, key);
+            return findNode(node->right, key);
         }
     }
 
-    Node *remove_node(Node *node)
+    bool removeHelper(Node *&node, const Key &key)
     {
+        if (!node)
+        {
+            return false; // node not found
         }
+        bool deleted = false;
+        if (node->key > key)
+        {
+            deleted = removeHelper(node->left, key);
+        }
+        else if (node->key < key)
+        {
+            deleted = removeHelper(node->right, key);
+        }
+        else
+        {
+            if (!node->left || !node->right)
+            {
+                Node *temp = node->left ? node->left : node->right;
+
+                if (!temp) // no child
+                {
+                    temp = node;
+                    node = nullptr;
+                }
+                else // one child
+                {
+                    *node = *temp; // Copy the content of the non-empty child
+                }
+
+                delete temp;
+            }
+            else
+            {
+                Node *successor = findMin(node->right);
+                node->key = successor->key;
+                node->info = successor->info;
+                removeHelper(node->right, successor->key);
+            }
+
+            deleted = true;
+        }
+
+        node = balance(node);
+        return deleted;
+    }
 
     void printTree(ostream &os, Node *node, int indent) const
     {
@@ -208,7 +278,7 @@ private:
 
 public:
     // Constructor
-    avl_tree() : root(nullptr){};
+    avl_tree() : size(0), root(nullptr){};
 
     // Copy constructor
     avl_tree(const avl_tree &src)
@@ -272,13 +342,7 @@ public:
      */
     bool remove(const Key &key)
     {
-        Node *node = find_node(root, key);
-        if (node == nullptr)
-        {
-            return false;
-        }
-        root = remove_node(root);
-        return true;
+        return removeHelper(root, key);
     }
 
     /**
@@ -290,7 +354,7 @@ public:
      */
     bool find(const Key &key) const
     {
-        return find_node(root, key) != nullptr;
+        return findNode(root, key) != nullptr;
     }
 
     /**
@@ -301,7 +365,7 @@ public:
      */
     Info &operator[](const Key &key)
     {
-        Node *node = find_node(root, key);
+        Node *node = findNode(root, key);
         if (node == nullptr)
         {
             throw std::runtime_error("Key not found");
@@ -317,7 +381,7 @@ public:
      */
     const Info &operator[](const Key &key) const
     {
-        Node *node = find_node(root, key);
+        Node *node = findNode(root, key);
         if (node == nullptr)
         {
             throw std::runtime_error("Key not found");
@@ -329,5 +393,9 @@ public:
     {
         tree.printTree(os, tree.root, 0);
         return os;
+    }
+    bool isBalanced()
+    {
+        return isBalancedHelper(root);
     }
 };
