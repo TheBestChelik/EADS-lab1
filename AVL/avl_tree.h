@@ -25,7 +25,7 @@ private:
         friend class avl_tree;
     };
 
-    Node *root;
+    Node *root = nullptr;
 
     int size = 0;
     bool isBalancedHelper(typename avl_tree<Key, Info>::Node *node)
@@ -55,6 +55,7 @@ private:
             clearHelper(node->left);
             clearHelper(node->right);
             delete node;
+            size--;
         }
     }
 
@@ -104,6 +105,7 @@ private:
         // If the current node is null, create a new node
         if (node == nullptr)
         {
+            size++;
             return new Node(key, info);
         }
 
@@ -278,7 +280,7 @@ private:
 
 public:
     // Constructor
-    avl_tree() : size(0), root(nullptr){};
+    avl_tree(){};
 
     // Copy constructor
     avl_tree(const avl_tree &src)
@@ -302,11 +304,21 @@ public:
             clear();
             // Copy the content from the source tree
             root = copyHelper(src.root);
+            this->size = src.size;
         }
 
         return *this;
     }
 
+    bool empty() const
+    {
+        return size == 0;
+    }
+
+    int getSize() const
+    {
+        return size;
+    }
     /**
      * @brief removes all elements from avl tree
      *
@@ -342,7 +354,12 @@ public:
      */
     bool remove(const Key &key)
     {
-        return removeHelper(root, key);
+        if (removeHelper(root, key))
+        {
+            size--;
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -394,8 +411,11 @@ public:
         tree.printTree(os, tree.root, 0);
         return os;
     }
+
+    // Function designed for testing
     bool isBalanced()
     {
         return isBalancedHelper(root);
     }
+    //
 };
