@@ -28,6 +28,65 @@ private:
     Node *root = nullptr;
 
     int size = 0;
+
+    template <typename Fn>
+    void for_each(Node *node, Fn fn)
+    {
+        if (node == nullptr)
+            return;
+        for_each(node->left, fn);
+        fn(node->key, node->info);
+        for_each(node->right, fn);
+    }
+
+    void getLargestHelper(Node *node, int &n, vector<pair<Key, Info>> &result)
+    {
+        if (node == nullptr || n == 0)
+        {
+            return;
+        }
+
+        // Recursively traverse the right subtree first (reverse in-order)
+        getLargestHelper(node->right, n, result);
+
+        // Process the current node
+        if (n > 0)
+        {
+            result.push_back(pair<Key, Info>(node->key, node->info));
+            n--;
+        }
+
+        // Continue with the left subtree if needed
+        if (n > 0)
+        {
+            getLargestHelper(node->left, n, result);
+        }
+    }
+
+    void getSmallestHelper(Node *node, int &n, vector<pair<Key, Info>> &result)
+    {
+        if (node == nullptr || n == 0)
+        {
+            return;
+        }
+
+        // Recursively traverse the right subtree first (reverse in-order)
+        getSmallestHelper(node->left, n, result);
+
+        // Process the current node
+        if (n > 0)
+        {
+            result.push_back(pair<Key, Info>(node->key, node->info));
+            n--;
+        }
+
+        // Continue with the left subtree if needed
+        if (n > 0)
+        {
+            getSmallestHelper(node->right, n, result);
+        }
+    }
+
     bool isBalancedHelper(typename avl_tree<Key, Info>::Node *node)
     {
         if (node == nullptr)
@@ -195,7 +254,6 @@ private:
         return findMin(node->left);
     }
 
-    Node *findMax(Node *node);
     Node *findNode(Node *node, const Key &key) const
     {
 
@@ -310,6 +368,22 @@ public:
         return *this;
     }
 
+    template <typename Fn>
+    void for_each(Fn fn) { for_each(root, fn); }
+    vector<pair<Key, Info>> getLargest(int n)
+    {
+        std::vector<pair<Key, Info>> result;
+        getLargestHelper(root, n, result);
+        return result;
+    }
+
+    vector<pair<Key, Info>> getSmallest(int n)
+    {
+        std::vector<pair<Key, Info>> result;
+        getSmallestHelper(root, n, result);
+        return result;
+    }
+
     bool empty() const
     {
         return size == 0;
@@ -419,3 +493,33 @@ public:
     }
     //
 };
+
+// External methods
+
+template <typename Key, typename Info>
+std::vector<std::pair<Key, Info>> maxinfo_selector(const avl_tree<Key, Info> &tree, unsigned cnt)
+{
+    avl_tree<Info, Key> inverted;
+
+    auto copy = tree;
+
+    // Define a lambda function to accumulate keys and infos into the vector
+    auto accumulateFn = [&inverted](const int &key, const std::string &info)
+    {
+        inverted.insert(info, key, [&](const Key &oldKey, const Key &newKey)
+                        { return oldKey + newKey; });
+    };
+
+    // Perform the for_each operation on the tree
+    copy.for_each(accumulateFn);
+
+    vector<pair<Info, Key>> largest = inverted.getLargest(cnt);
+
+    vector<pair<Key, Info>> aboba;
+    for (auto &pair : largest)
+    {
+        aboba.push_back(make_pair(pair.second, pair.first));
+    }
+
+    return aboba;
+}
