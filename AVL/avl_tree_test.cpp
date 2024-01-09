@@ -3,25 +3,46 @@
 #include <cassert>
 
 using namespace std;
+void test_clear_get_size()
+{
+    avl_tree<int, std::string> tree;
+    assert(tree.getSize() == 0);
+    assert(tree.empty());
+    tree.insert(10, "A");
+    tree.insert(5, "B");
+    tree.insert(15, "C");
+    tree.insert(2, "D");
+    tree.insert(8, "E");
+    tree.insert(12, "F");
+    tree.insert(18, "G");
+    assert(tree.getSize() == 7);
+    tree.clear();
+    assert(tree.empty());
+    assert(tree.getSize() == 0);
+    cout << "All tests clear and get size tests passed" << endl;
+}
 
 void test_insert_find()
 {
     avl_tree<int, std::string> tree;
 
-    // Test 1: Inserting elements into the tree
+    assert(tree.empty());
+    assert(tree.getSize() == 0);
     tree.insert(10, "Apple");
     assert(tree.isBalanced());
+    assert(tree.getSize() == 1);
     tree.insert(5, "Banana");
     assert(tree.isBalanced());
+    assert(tree.getSize() == 2);
     tree.insert(15, "Cherry");
     assert(tree.isBalanced());
+    assert(tree.getSize() == 3);
 
-    // Verify that the elements are correctly inserted
-    assert(tree.find(10)); // Check if 10 exists in the tree
-    assert(tree.find(5));  // Check if 5 exists in the tree
-    assert(tree.find(15)); // Check if 15 exists in the tree
+    assert(tree.find(10));
+    assert(tree.find(5));
+    assert(tree.find(15));
 
-    assert(tree.find(11) == false); // Check not existing element
+    assert(tree.find(11) == false);
 
     cout << "All tests insert and find tests passed" << endl;
 }
@@ -35,26 +56,28 @@ void test_insert_get()
     tree.insert(5, "Banana");
     tree.insert(15, "Cherry");
     assert(tree.isBalanced());
+    assert(tree.getSize() == 3);
 
     assert(tree[10] == "Apple");
     assert(tree[5] == "Banana");
     assert(tree[15] == "Cherry");
 
     tree.insert(10, "Orange");
+    assert(tree.getSize() == 3);
 
     assert(tree[10] == "Orange");
 
     tree.insert(10, "Grapes", [](const std::string &oldInfo, const std::string &newInfo)
                 { return oldInfo + newInfo; });
+    assert(tree.getSize() == 3);
 
     assert(tree[10] == "OrangeGrapes");
 
     cout << "All tests insert and get tests passed" << endl;
 }
 
-void testRemove()
+void test_remove()
 {
-    // Create an AVL tree and insert elements
     avl_tree<int, std::string> tree;
     tree.insert(10, "A");
     tree.insert(5, "B");
@@ -64,34 +87,120 @@ void testRemove()
     tree.insert(12, "F");
     tree.insert(18, "G");
 
+    // cout << "first" << endl
+    //      << tree << endl;
     // Test removal of a node with no children
     assert(tree.remove(2));
     assert(!tree.find(2));     // The node with key 2 should not be found
     assert(tree.isBalanced()); // Verify that the tree is still balanced
+    assert(tree.getSize() == 6);
 
+    // cout << "second" << endl
+    // << tree << endl;
     // Test removal of a node with one child
     assert(tree.remove(5));
     assert(!tree.find(5));     // The node with key 5 should not be found
     assert(tree.isBalanced()); // Verify that the tree is still balanced
+    assert(tree.getSize() == 5);
 
+    // cout << "third" << endl
+    //      << tree << endl;
     // Test removal of a node with two children
     assert(tree.remove(15));
     assert(!tree.find(15));    // The node with key 15 should not be found
     assert(tree.isBalanced()); // Verify that the tree is still balanced
+    assert(tree.getSize() == 4);
 
-    // Test removal of a non-existing node
+    // cout << "fourth" << endl
+    //      << tree << endl;
+    // Test removal of a non - existing node
     assert(!tree.remove(100)); // Node with key 100 doesn't exist, removal should fail
     assert(tree.isBalanced()); // Verify that the tree is still balanced
+    assert(tree.getSize() == 4);
 
-    // Add more tests as needed
+    // Test removing root node
+    assert(tree.remove(10));
+    assert(!tree.find(10));    // The root node should not be found
+    assert(tree.isBalanced()); // Verify that the tree is still balanced
+    assert(tree.getSize() == 3);
+    cout << "All tests passed!" << endl;
+}
+
+void test_assignment_operator()
+{
+
+    avl_tree<int, std::string> tree;
+    tree.insert(10, "A");
+    tree.insert(5, "B");
+    tree.insert(15, "C");
+    tree.insert(2, "D");
+    tree.insert(8, "E");
+    tree.insert(12, "F");
+    tree.insert(18, "G");
+
+    avl_tree<int, std::string> tree2;
+    assert(tree2.getSize() == 0);
+    assert(tree2.empty());
+
+    tree2 = tree;
+
+    assert(tree.getSize() == tree2.getSize());
+    assert(tree2.isBalanced());
+
+    assert(tree[10] == tree2[10]);
+    assert(tree[5] == tree2[5]);
+    assert(tree[2] == tree2[2]);
+    assert(tree[18] == tree2[18]);
+
+    tree2[10] = "HelloWord!";
+    assert(tree2[10] == "HelloWord!");
+    assert(tree[10] == "A");
+
+    tree2.remove(10);
+    assert(tree2.find(10) == false);
+    assert(tree.find(10) == true);
+
+    cout << "All tests passed!" << endl;
+}
+
+void test_copyconstructor()
+{
+
+    avl_tree<int, std::string> tree;
+    tree.insert(10, "A");
+    tree.insert(5, "B");
+    tree.insert(15, "C");
+    tree.insert(2, "D");
+    tree.insert(8, "E");
+    tree.insert(12, "F");
+    tree.insert(18, "G");
+
+    avl_tree<int, std::string> tree2 = tree;
+
+    assert(tree[10] == tree2[10]);
+    assert(tree[5] == tree2[5]);
+    assert(tree[2] == tree2[2]);
+    assert(tree[18] == tree2[18]);
+
+    tree2[10] = "HelloWord!";
+    assert(tree2[10] == "HelloWord!");
+    assert(tree[10] == "A");
+
+    tree2.remove(10);
+    assert(tree2.find(10) == false);
+    assert(tree.find(10) == true);
+
+    cout << "All tests passed!" << endl;
 }
 
 int main()
 {
-
+    test_clear_get_size();
     test_insert_find();
     test_insert_get();
-    testRemove();
+    test_remove();
+    test_assignment_operator();
+    test_copyconstructor();
     cout << "All tests passed!" << endl;
     // avl_tree<int, int> my_first_tree;
 
