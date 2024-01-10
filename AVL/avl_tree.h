@@ -1,6 +1,8 @@
 #include <iostream>
 #include <iomanip>
 #include <functional>
+#include <fstream>
+#include <chrono>
 #pragma once
 using namespace std;
 
@@ -343,7 +345,6 @@ public:
     // Copy constructor
     avl_tree(const avl_tree &src)
     {
-        // root = copyHelper(src.root);
         *this = src;
     }
 
@@ -357,10 +358,8 @@ public:
     avl_tree &operator=(const avl_tree &src)
     {
         if (this != &src)
-        { // Check for self-assignment
-            // Clear the existing content
+        {
             clear();
-            // Copy the content from the source tree
             root = copyHelper(src.root);
             this->size = src.size;
         }
@@ -393,6 +392,7 @@ public:
     {
         return size;
     }
+
     /**
      * @brief removes all elements from avl tree
      *
@@ -462,7 +462,7 @@ public:
             throw std::runtime_error("Key not found");
         }
         return node->info;
-    } // tree[aboba] = 1
+    }
 
     /**
      * @brief returns info by key
@@ -482,11 +482,16 @@ public:
 
     friend std::ostream &operator<<(std::ostream &os, const avl_tree &tree)
     {
+        if (tree.getSize() > 40)
+        {
+            os << "Tree is too big to print";
+            return os;
+        }
         tree.printTree(os, tree.root, 0);
         return os;
     }
 
-    // Function designed for testing
+    // Function designed just for testing
     bool isBalanced()
     {
         return isBalancedHelper(root);
@@ -499,27 +504,36 @@ public:
 template <typename Key, typename Info>
 std::vector<std::pair<Key, Info>> maxinfo_selector(const avl_tree<Key, Info> &tree, unsigned cnt)
 {
-    avl_tree<Info, Key> inverted;
+    avl_tree<pair<Info, Key>, int> inverted;
 
     auto copy = tree;
 
-    // Define a lambda function to accumulate keys and infos into the vector
-    auto accumulateFn = [&inverted](const int &key, const std::string &info)
+    auto accumulateFn = [&inverted](const Key &key, const Info &info)
     {
-        inverted.insert(info, key, [&](const Key &oldKey, const Key &newKey)
-                        { return oldKey + newKey; });
+        inverted.insert(make_pair(info, key), 1);
     };
 
-    // Perform the for_each operation on the tree
     copy.for_each(accumulateFn);
 
-    vector<pair<Info, Key>> largest = inverted.getLargest(cnt);
+    vector<pair<pair<Info, Key>, int>> largest = inverted.getLargest(cnt);
 
     vector<pair<Key, Info>> aboba;
     for (auto &pair : largest)
     {
-        aboba.push_back(make_pair(pair.second, pair.first));
+        aboba.push_back(make_pair(pair.first.second, pair.first.first));
     }
 
     return aboba;
+}
+
+avl_tree<string, int> count_words(istream &is)
+{
+    std::string word;
+    avl_tree<string, int> wc;
+    while (is >> word)
+    {
+        wc.insert(word, 1, [](const int &oldValue, const int &newValue)
+                  { return oldValue + newValue; });
+    }
+    return wc;
 }
