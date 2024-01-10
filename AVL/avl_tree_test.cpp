@@ -1,6 +1,7 @@
 #include "avl_tree.h"
 #include <iostream>
 #include <cassert>
+#include "avl_tree_test.h"
 
 using namespace std;
 void test_clear_get_size()
@@ -51,7 +52,6 @@ void test_insert_get()
 {
     avl_tree<int, std::string> tree;
 
-    // Test 1: Inserting elements into the tree
     tree.insert(10, "Apple");
     tree.insert(5, "Banana");
     tree.insert(15, "Cherry");
@@ -87,41 +87,28 @@ void test_remove()
     tree.insert(12, "F");
     tree.insert(18, "G");
 
-    // cout << "first" << endl
-    //      << tree << endl;
-    // Test removal of a node with no children
     assert(tree.remove(2));
-    assert(!tree.find(2));     // The node with key 2 should not be found
-    assert(tree.isBalanced()); // Verify that the tree is still balanced
+    assert(!tree.find(2));
+    assert(tree.isBalanced());
     assert(tree.getSize() == 6);
 
-    // cout << "second" << endl
-    // << tree << endl;
-    // Test removal of a node with one child
     assert(tree.remove(5));
-    assert(!tree.find(5));     // The node with key 5 should not be found
-    assert(tree.isBalanced()); // Verify that the tree is still balanced
+    assert(!tree.find(5));
+    assert(tree.isBalanced());
     assert(tree.getSize() == 5);
 
-    // cout << "third" << endl
-    //      << tree << endl;
-    // Test removal of a node with two children
     assert(tree.remove(15));
-    assert(!tree.find(15));    // The node with key 15 should not be found
-    assert(tree.isBalanced()); // Verify that the tree is still balanced
+    assert(!tree.find(15));
+    assert(tree.isBalanced());
     assert(tree.getSize() == 4);
 
-    // cout << "fourth" << endl
-    //      << tree << endl;
-    // Test removal of a non - existing node
-    assert(!tree.remove(100)); // Node with key 100 doesn't exist, removal should fail
-    assert(tree.isBalanced()); // Verify that the tree is still balanced
+    assert(!tree.remove(100));
+    assert(tree.isBalanced());
     assert(tree.getSize() == 4);
 
-    // Test removing root node
     assert(tree.remove(10));
-    assert(!tree.find(10));    // The root node should not be found
-    assert(tree.isBalanced()); // Verify that the tree is still balanced
+    assert(!tree.find(10));
+    assert(tree.isBalanced());
     assert(tree.getSize() == 3);
     cout << "All tests passed!" << endl;
 }
@@ -268,9 +255,9 @@ void test_get_smallest()
     std::vector<std::pair<int, std::string>> smallestElements = tree.getSmallest(n);
 
     std::vector<std::pair<int, std::string>> expectedElements = {
-        std::make_pair(2, "D"),
-        std::make_pair(5, "B"),
-        std::make_pair(8, "E")};
+        make_pair(2, "D"),
+        make_pair(5, "B"),
+        make_pair(8, "E")};
 
     assert(smallestElements == expectedElements);
 
@@ -280,13 +267,13 @@ void test_get_smallest()
 
     smallestElements = tree.getSmallest(10); // more than in the array
     expectedElements = {
-        std::make_pair(2, "D"),
-        std::make_pair(5, "B"),
-        std::make_pair(8, "E"),
-        std::make_pair(10, "A"),
-        std::make_pair(12, "F"),
-        std::make_pair(15, "C"),
-        std::make_pair(18, "G")};
+        make_pair(2, "D"),
+        make_pair(5, "B"),
+        make_pair(8, "E"),
+        make_pair(10, "A"),
+        make_pair(12, "F"),
+        make_pair(15, "C"),
+        make_pair(18, "G")};
 
     assert(smallestElements == expectedElements);
 
@@ -304,19 +291,15 @@ void test_for_each()
     tree.insert(12, "F");
     tree.insert(18, "G");
 
-    // Use a vector to store the keys and infos during for_each
     std::vector<std::pair<int, std::string>> elements;
 
-    // Define a lambda function to accumulate keys and infos into the vector
     auto accumulateFn = [&elements](const int &key, const std::string &info)
     {
-        elements.push_back(std::make_pair(key, info));
+        elements.push_back(make_pair(key, info));
     };
 
-    // Perform the for_each operation on the tree
     tree.for_each(accumulateFn);
 
-    // Define the expected elements in the order of in-order traversal
     std::vector<std::pair<int, std::string>> expectedElements = {
         {2, "D"},
         {5, "B"},
@@ -326,10 +309,9 @@ void test_for_each()
         {15, "C"},
         {18, "G"}};
 
-    // Check if the elements vector matches the expected elements
     assert(elements == expectedElements);
 
-    std::cout << "For_each test passed!" << std::endl;
+    std::cout << "All for_each tests passed!" << std::endl;
 }
 
 void test_maxinfo_selector()
@@ -346,7 +328,6 @@ void test_maxinfo_selector()
     int n = 3;
     std::vector<std::pair<int, std::string>> selectedElements = maxinfo_selector(tree, n);
 
-    // Define the expected elements with the largest info
     std::vector<std::pair<int, std::string>> expectedElements = {
         {18, "G"},
         {12, "F"},
@@ -354,7 +335,6 @@ void test_maxinfo_selector()
 
     assert(selectedElements == expectedElements);
 
-    // Test when n is greater than the number of elements in the tree
     selectedElements = maxinfo_selector(tree, 10);
     expectedElements = {
         {18, "G"},
@@ -367,22 +347,59 @@ void test_maxinfo_selector()
 
     assert(selectedElements == expectedElements);
 
-    // Test when n is 0
     selectedElements = maxinfo_selector(tree, 0);
     expectedElements = {};
     assert(selectedElements == expectedElements);
 
-    // Test when info can be the same, keys should sum
     tree[2] = "F";
     selectedElements = maxinfo_selector(tree, n);
 
-    // Define the expected elements with the largest info
     expectedElements = {
         {18, "G"},
         {14, "F"},
         {8, "E"}};
 
-    std::cout << "maxinfo_selector test passed!" << std::endl;
+    std::cout << "All maxinfo_selector tests passed!" << std::endl;
+}
+
+void test_word_count()
+{
+
+    ifstream vagner("Vagner_song.txt");
+    ifstream ukraine("Ukraine_Gimn.txt");
+    ifstream soviet("Soviet_union_gimn.txt");
+    ifstream bandera("bandera.txt");
+    ifstream voyage("beagle_voyage.txt");
+
+    auto wc = count_words(vagner);
+    assert(wc.getSize() == 88);
+    wc = count_words(ukraine);
+    assert(wc.getSize() == 80);
+    wc = count_words(soviet);
+    assert(wc.getSize() == 80);
+    wc = count_words(bandera);
+    assert(wc.getSize() == 138);
+    wc = count_words(voyage);
+    // cout << wc.getSize() << endl;
+    // auto most_used_words = maxinfo_selector(wc, 20);
+    // for (const auto &pair : most_used_words)
+    // {
+    //     cout << pair.first << ": " << pair.second << endl;
+    // }
+    cout << "Count words tests passed" << endl;
+}
+
+void time_measurement()
+{
+    for (int rep = 0; rep < 5; rep++)
+    {
+        ifstream is("beagle_voyage.txt");
+        auto start_time = std::chrono::high_resolution_clock::now();
+        auto wc = count_words(is);
+        auto end_time = std::chrono::high_resolution_clock::now();
+        auto time = end_time - start_time;
+        std::cout << "Ellapsed time: " << time / std::chrono::milliseconds(1) << "ms" << endl;
+    }
 }
 
 int main()
@@ -402,4 +419,7 @@ int main()
 
     // External functions tests
     test_maxinfo_selector();
+    test_word_count();
+
+    time_measurement();
 }
